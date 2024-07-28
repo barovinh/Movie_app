@@ -4,7 +4,10 @@ import { StatusBar } from 'expo-status-bar';
 import ImageViewer from '@/components/ImageViewer';
 import Button from '@/components/Button'
 import { FontAwesome } from '@expo/vector-icons';
-
+import * as ImagePicker from 'expo-image-picker';
+import { useState } from 'react';
+import CircleButton from '@/components/CircleButton';
+import IconButton from '@/components/IconButton';
 // LogoTitle Component
 function LogoTitle() {
   return (
@@ -17,35 +20,65 @@ function LogoTitle() {
 const PlaceholderImage = require('@assets/images/background-image.png');
 // Home Component
 export default function Home() {
+  const [showAppOptions, setShowAppOptions] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const pickImageAsync = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      allowsEditing: true, quality: 1,
+    });
+    if (!result.canceled) {
+      // console.log(result);
+      setSelectedImage(result.assets[0].uri);
+      setShowAppOptions(true);
+      console.log(showAppOptions);
+    }
+    else {
+      alert('Sao mày không chọn ảnh ?');
+    }
+  }
+  const onReset = () => {
+    setShowAppOptions(false);
+  };
+
+  const onAddSticker = () => {
+    // we will implement this later
+  };
+
+  const onSaveImageAsync = async () => {
+    // we will implement this later
+  };
+
   const name = 'Bacon';
 
   return (
     <View style={styles.container}>
       <Stack.Screen
         options={{
-          title: 'My home',
+          title: 'My Home',
           headerStyle: { backgroundColor: '#f4511e' },
           headerTintColor: '#fff',
-          headerTitleStyle: {
-            fontWeight: 'bold',
-          },
+          headerTitleStyle: { fontWeight: 'bold' },
           headerTitle: () => <LogoTitle />,
         }}
       />
-      <Text style={{ color: '#fff' }}>Home Screen</Text>
-
-      {/* <Link href={{ pathname: `/details/${name}`, params: { name } }}>
-        Go to Details
-      </Link> */}
       <View style={styles.imageContainer}>
-        <ImageViewer placeholderImageSource={PlaceholderImage} />
+        <ImageViewer placeholderImageSource={PlaceholderImage} selectedImage={selectedImage} />
       </View>
-      <View style={styles.footerContainer}>
-        <Button label={"Chosoe a photo"} theme={"primary"}/>
-        <Button label={"Use this photo"}/>
-      </View>
+      {showAppOptions ? (
+        <View style={styles.optionsContainer}>
+          <View style={styles.optionsRow}>
+            <IconButton icon="refresh" label="Reset" onPress={onReset} />
+            <CircleButton onPress={onAddSticker} />
+            <IconButton icon="save-alt" label="Save" onPress={onSaveImageAsync} />
+          </View>
+        </View>
+      ) : (
+        <View style={styles.footerContainer}>
+          <Button theme="primary" label="Choose a photo" onPress={pickImageAsync} />
+          <Button label="Use this photo" onPress={() => setShowAppOptions(true)} />
+        </View>
+      )}
       <StatusBar style="auto" />
-
     </View>
   );
 }
@@ -58,14 +91,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#25292e',
   }, image: {
-
   },
   imageContainer: {
     flex: 1,
     paddingTop: 58,
   },
-  footerContainer:{
-    flex:1/3,
-    alignItems:'center'
-  }
+  footerContainer: {
+    flex: 1 / 3,
+    alignItems: 'center'
+  }, optionsContainer: {
+    position: 'absolute',
+    bottom: 80,
+  },
+  optionsRow: {
+    alignItems: 'center',
+    flexDirection: 'row',
+  },
 });
